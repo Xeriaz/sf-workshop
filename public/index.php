@@ -1,6 +1,6 @@
 <?php
 
-require_once './vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,17 +15,17 @@ use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
-$routes = new RouteCollection();
-$routes->add(
-    'hello',
-    new Route('/hello/{name}',
-        [
-            '_controller' => function (Request $request) {
-                return new Response('Hello ' . $request->get('name'));
-            }
-        ]
-    )
-);
+//$routes = new RouteCollection();
+//$routes->add(
+//    'hello',
+//    new Route('/hello/{name}',
+//        [
+//            '_controller' => function (Request $request) {
+//                return new Response('Hello ' . $request->get('name'));
+//            }
+//        ]
+//    )
+//);
 
 $request = Request::createFromGlobals();
 
