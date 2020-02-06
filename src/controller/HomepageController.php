@@ -1,8 +1,8 @@
 <?php
+
 declare(strict_types=1);
 
-//use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-namespace src\Controller;
+namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,5 +16,10 @@ class HomepageController
     public function index(Request $request): Response
     {
         return new Response('Hello ' . $request->get('name'));
+    }
+
+    public function __invoke()
+    {
+        return new Response('Hello World! This is __invoke()');
     }
 }
