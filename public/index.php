@@ -31,7 +31,8 @@ $kernel = new HttpKernel($dispatcher, $controllerResolver, new RequestStack(), $
 try {
     $response = $kernel->handle($request);
 } catch (Exception $e) {
-    dump($e);
+    var_dump($e);
+    exit;
 }
 
 $response->send();

@@ -9,5 +9,8 @@
             "App\\": "src/",
             "App\\Controller\\": "src/controller"
         }
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^0.12.9"
     }
 }
