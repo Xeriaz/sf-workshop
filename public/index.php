@@ -30,8 +30,9 @@ $kernel = new HttpKernel($dispatcher, $controllerResolver, new RequestStack(), $
 
 try {
     $response = $kernel->handle($request);
-} catch (Exception $e) {
-    dump($e);
+} catch (Throwable $e) {
+    dump($e, $e->getTraceAsString());
+    exit;
 }
 
 $response->send();
