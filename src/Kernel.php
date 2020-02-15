@@ -19,36 +19,78 @@ use Symfony\Component\Routing\RequestContext;
 
 class Kernel
 {
+    /** @var FileLocator */
+    private $fileLocator;
+
+    /** @var ContainerBuilder */
+    private $containerBuilder;
+
+    /** @var PhpFileLoader */
+    private $loader;
+
+    /** @var RoutingLoader */
+    private $routingLoader;
+
+    /** @var EventDispatcher */
+    private $dispatcher;
+
+    /** @var HttpKernel */
+    private $kernel;
+
+    public function __construct()
+    {
+        $this->fileLocator = new FileLocator();
+        $this->containerBuilder = new ContainerBuilder();
+        $this->loader = new PhpFileLoader($this->containerBuilder, $this->fileLocator);
+        $this->routingLoader = new RoutingLoader($this->fileLocator);
+        $this->dispatcher = new EventDispatcher();
+        $this->kernel = new HttpKernel(
+            $this->dispatcher,
+            new ContainerControllerResolver($this->containerBuilder),
+            new RequestStack(),
+            new ArgumentResolver()
+        );
+    }
+
     public function run(): void
     {
-        $fileLocator = new FileLocator();
-        $containerBuilder = new ContainerBuilder();
-
-        $loader = new PhpFileLoader($containerBuilder, $fileLocator);
-        $loader->load(dirname(__DIR__) . '/config/services.php');
-
-        $containerBuilder->compile();
-
-        $routingLoader = new RoutingLoader($fileLocator);
-        $matcher = new UrlMatcher($routingLoader->load(dirname(__DIR__) . '/config/routes.php'), new RequestContext());
-
-        $dispatcher = new EventDispatcher();
-        $dispatcher->addSubscriber(new RouterListener($matcher, new RequestStack()));
-
-        $controllerResolver = new ContainerControllerResolver($containerBuilder);
+        $this->loadServices();
+        $this->loadRoutes();
 
         $request = Request::createFromGlobals();
 
-        $kernel = new HttpKernel($dispatcher, $controllerResolver, new RequestStack(), new ArgumentResolver());
-
         try {
-            $response = $kernel->handle($request);
-        } catch (Throwable $e) {
+            $response = $this->kernel->handle($request);
+        } catch (\Throwable $e) {
             dump($e);
             exit;
         }
 
         $response->send();
-        $kernel->terminate($request, $response);
+        $this->kernel->terminate($request, $response);
+    }
+
+    private function loadServices(): void
+    {
+        $this->loader->load($this->getDirname() . '/config/services.php');
+        $this->containerBuilder->compile();
+    }
+
+    private function loadRoutes(): void
+    {
+        $matcher = new UrlMatcher(
+            $this->routingLoader->load($this->getDirname() . '/config/routes.php'),
+            new RequestContext()
+        );
+
+        $this->dispatcher->addSubscriber(new RouterListener($matcher, new RequestStack()));
+    }
+
+    /**
+     * @return string
+     */
+    private function getDirname(): string
+    {
+        return dirname(__DIR__);
     }
 }
