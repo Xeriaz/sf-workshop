@@ -4,6 +4,4 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Kernel;
 
-
-(new Kernel())
-    ->run();
+(new Kernel('dev', true))->run();
