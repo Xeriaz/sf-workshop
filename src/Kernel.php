@@ -6,17 +6,22 @@ namespace App;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ReferenceConfigurator;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
+use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpKernel\EventListener\RouterListener;
 use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\Loader\PhpFileLoader as RoutingLoader;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class Kernel extends BaseKernel
 {
@@ -32,16 +37,12 @@ class Kernel extends BaseKernel
     /** @var EventDispatcher */
     private $dispatcher;
 
-    /** @var HttpKernel */
-//    private $kernel;
-
     public function __construct(string $environment, bool $debug)
     {
         parent::__construct($environment, $debug);
 
         $this->fileLocator = new FileLocator();
         $this->routingLoader = new RoutingLoader($this->fileLocator);
-//        $this->dispatcher = new EventDispatcher();
     }
 
     public function run(): void
@@ -62,16 +63,40 @@ class Kernel extends BaseKernel
     protected function build(ContainerBuilder $container)
     {
         $container->addCompilerPass(new RegisterListenersPass());
-        $container->register('debug.event_dispatcher', EventDispatcher::class);
 
-        $matcher = new UrlMatcher(
-            (new RoutingLoader($this->fileLocator))->load($this->getProjectDir() . '/config/routes.php'),
-            new RequestContext()
-        );
-        $container->get('debug.event_dispatcher')->addSubscriber(new RouterListener($matcher, new RequestStack()));
+		$container->register('event_dispatcher', EventDispatcher::class)
+			->setPublic(true);
+
+		$container->register('controller_resolver', ContainerControllerResolver::class)
+			->setArguments(
+				[
+					new Reference('service_container'),
+				]
+			);
+		$container->register('request_stack', RequestStack::class);
+		$container->register('argument_resolver', ArgumentResolver::class);
+
+		$container->register('http_kernel', HttpKernel::class)
+			->setPublic(true)
+			->setArguments(
+				[
+					new Reference('event_dispatcher'),
+					new Reference('controller_resolver'),
+					new Reference('request_stack'),
+					new Reference('argument_resolver'),
+				]
+			);
+
+		// TODO: configure the event dispatcher.
+
+		/** @var EventDispatcherInterface $dispatcher */
+        $dispatcher = $container->get('event_dispatcher');
+		$this->loadRoutes($dispatcher);
+
+//		$container->set('event_dispatcher', $dispatcher);
     }
 
-    private function loadRoutes(EventDispatcher $dispatcher): void
+    private function loadRoutes(EventDispatcherInterface $dispatcher): void
     {
         $matcher = new UrlMatcher(
             (new RoutingLoader($this->fileLocator))->load($this->getProjectDir() . '/config/routes.php'),
