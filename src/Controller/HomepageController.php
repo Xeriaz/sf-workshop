@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class HomepageController
 {
+    /** @var GreeterService */
     private $greeter;
 
     /**
