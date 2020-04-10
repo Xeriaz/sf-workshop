@@ -14,3 +14,4 @@ before_script:
 
 script:
   - vendor/bin/phpstan analyse src --level=max
+  - vendor/bin/phpcs src --standard=PSR12
