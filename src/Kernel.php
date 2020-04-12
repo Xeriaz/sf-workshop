@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App;
@@ -19,7 +20,11 @@ class Kernel extends BaseKernel
 {
     /** @var FileLocator */
     private $fileLocator;
+
+    /** @var int */
     protected $requestStackSize = 0;
+
+    /** @var bool */
     protected $resetServices = false;
 
     public function __construct(string $environment, bool $debug)
@@ -78,7 +83,7 @@ class Kernel extends BaseKernel
     /**
      * @inheritDoc
      */
-    public function registerContainerConfiguration(LoaderInterface $loader)
+    public function registerContainerConfiguration(LoaderInterface $loader): void
     {
         $loader->load($this->getProjectDir() . '/config/services.php');
     }
