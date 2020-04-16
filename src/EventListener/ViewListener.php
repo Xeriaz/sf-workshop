@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
-use App\Kernel;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Twig\Environment;
@@ -13,7 +12,7 @@ use Twig\Loader\FilesystemLoader;
 
 class ViewListener
 {
-    public function onKernelView(ViewEvent $event)
+    public function onKernelView(ViewEvent $event): void
     {
         $value = $event->getControllerResult();
         $classname = $this->getClassname($value['controller']);
