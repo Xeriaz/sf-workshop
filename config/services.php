@@ -2,7 +2,10 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use App\EventListener\ViewListener;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
@@ -10,7 +13,7 @@ use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpKernel\HttpKernel;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 
-return function (ContainerConfigurator $configurator) {
+return function (ContainerConfigurator $configurator, ContainerBuilder $container) {
     $services = $configurator->services()
         ->defaults()
             ->autowire()
@@ -33,4 +36,9 @@ return function (ContainerConfigurator $configurator) {
                 ref('argument_resolver'),
             ]
         );
+
+    $container->addCompilerPass(new RegisterListenersPass());
+    $container->register(ViewListener::class)
+        ->addTag('kernel.event_listener', ['event' => 'kernel.view'])
+    ;
 };

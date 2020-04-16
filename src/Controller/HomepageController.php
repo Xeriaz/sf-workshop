@@ -23,13 +23,14 @@ class HomepageController
     /**
      * @param string $name
      *
-     * @return Response
+     * @return array
      */
-    public function index(string $name): Response
+    public function index(string $name): array
     {
-        return new Response(
-            $this->greeter->greet($name)
-        );
+        return [
+            'controller' => \get_class($this),
+            'message' => $this->greeter->greet($name),
+        ];
     }
 
     /**
