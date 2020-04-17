@@ -25,11 +25,11 @@ class HomepageController
      *
      * @return array
      */
-    public function index(string $name): array
+    public function index(string $name)
     {
         return [
-            'controller' => \get_class($this),
             'message' => $this->greeter->greet($name),
+			'price' => 100000.04123,
         ];
     }
 

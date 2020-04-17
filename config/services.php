@@ -39,6 +39,9 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
 
     $container->addCompilerPass(new RegisterListenersPass());
     $container->register(ViewListener::class)
+		->addArgument(
+			$container->getParameter('kernel.cache_dir')
+		)
         ->addTag('kernel.event_listener', ['event' => 'kernel.view'])
     ;
 };
