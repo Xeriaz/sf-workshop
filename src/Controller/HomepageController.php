@@ -22,21 +22,20 @@ class HomepageController
 
     /**
      * @param string $name
-     *
-     * @return array
+     * @return array<string, float|string>
      */
-    public function index(string $name)
+    public function index(string $name): array
     {
         return [
             'message' => $this->greeter->greet($name),
-			'price' => 100000.04123,
+            'price' => 100000.04123,
         ];
     }
 
     /**
      * @return Response
      */
-    public function __invoke()
+    public function __invoke(): Response
     {
         return new Response('Hello World! This is __invoke()');
     }
