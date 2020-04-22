@@ -54,7 +54,6 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
             ]
         );
 
-
     $container->addCompilerPass(new RegisterListenersPass());
     $container->register(ViewListener::class)
         ->addArgument(
