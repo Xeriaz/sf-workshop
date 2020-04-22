@@ -11,19 +11,28 @@ use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use Twig\Loader\FilesystemLoader;
 
 class ViewListener
 {
+    /** @var Environment */
+    protected $twigEnv;
+
+    /** @var string */
+    protected $twigDir;
+
     /** @var string */
     private $cacheDir;
 
     /**
+     * @param Environment $twigEnv
      * @param string $cacheDir
+     * @param string $twigDir
      */
-    public function __construct(string $cacheDir)
+    public function __construct(Environment $twigEnv, string $cacheDir, string $twigDir)
     {
+        $this->twigEnv = $twigEnv;
         $this->cacheDir = $cacheDir;
+        $this->twigDir = $twigDir;
     }
 
     /**
@@ -48,42 +57,15 @@ class ViewListener
 
         $response = new Response();
 
-        // Extract Twig Environment initialization to Service Container
-        // TODO: extract into a parameter like kernel.cache_dir
-        $twigTemplatePath = $this->getProjectDir() . '/templates/';
-        $loader = new FilesystemLoader($twigTemplatePath); // Twig FileSystem Loader will use the parameter
-        $twig = new Environment( // Environment Should Be Also in the Dependency Container
-            $loader,
-            [
-                'cache' => $this->cacheDir,
-            ]
+        // TODO: make this automatic, based on tags: if Price Extension has a tag "twig.extension"
+        // this should happen automatically
+        $this->twigEnv->addExtension(new PriceExtension());
+
+        $response->setContent(
+            $this->getRenderedTwig($templatePath, $value)
         );
 
-        // TODO: make this automatic, based on tags: if Price Extension has a tag "twig.extension"
-        // this should happen automattically
-        $twig->addExtension(new PriceExtension());
-
-        try {
-            $response->setContent(
-                $twig->render($templatePath, $value) // $this should become $this->twig->render
-            );
-        } catch (LoaderError $exception) {
-            try {
-                $response->setContent($twig->render($this->getFallbackTemplate($classname), $value));
-            } catch (LoaderError $exception) {
-                $response->setContent($twig->render($this->getErrorTemplate(), $value));
-            }
-        }
-
         $event->setResponse($response);
-    }
-
-    /**
-     * @return string
-     */
-    private function getProjectDir(): string
-    {
-        return \dirname(\dirname(__DIR__));
     }
 
     /**
@@ -112,11 +94,21 @@ class ViewListener
     }
 
     /**
-     * @param string $classname
+     * @param string $templatePath
+     * @param array $value
      * @return string
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    private function getFallbackTemplate(string $classname): string
+    private function getRenderedTwig(string $templatePath, array $value): string
     {
-        return "{$classname}/index.html.twig";
+        try {
+            $renderedTwig = $this->twigEnv->render($templatePath, $value);
+        } catch (LoaderError $exception) {
+            $renderedTwig = $this->twigEnv->render($this->getErrorTemplate(), $value);
+        }
+
+        return $renderedTwig;
     }
 }
