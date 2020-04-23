@@ -28,6 +28,9 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
     $services->load('App\\', '../src/*')
         ->exclude('../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}');
 
+    $services->load('App\\Twig\\', '../src/Twig')
+        ->tag('twig.extension');
+
     $services->set('event_dispatcher', EventDispatcher::class);
     $services->set('controller_resolver', ContainerControllerResolver::class);
     $services->set('request_stack', RequestStack::class);
@@ -54,8 +57,6 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
                 ['cache' => $container->getParameter('kernel.cache_dir')],
             ]
         );
-    $services->set('twig.price_extension', PriceExtension::class)
-        ->tag('twig.extension');
 
     $container->addCompilerPass(new RegisterListenersPass());
     $container->register(ViewListener::class)
