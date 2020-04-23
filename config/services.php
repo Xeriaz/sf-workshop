@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\EventListener\ViewListener;
+use App\Twig\PriceExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
@@ -31,12 +32,6 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
     $services->set('controller_resolver', ContainerControllerResolver::class);
     $services->set('request_stack', RequestStack::class);
     $services->set('argument_resolver', ArgumentResolver::class);
-    $services->set('twig.filesystem_loader', FilesystemLoader::class)
-        ->args(
-            [
-                $container->getParameter('twig.template_dir'),
-            ]
-        );
     $services->set('http_kernel', HttpKernel::class)
         ->args(
             [
@@ -46,6 +41,12 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
                 ref('argument_resolver'),
             ]
         );
+    $services->set('twig.filesystem_loader', FilesystemLoader::class)
+        ->args(
+            [
+                $container->getParameter('twig.template_dir'),
+            ]
+        );
     $services->set('twig.environment', Environment::class)
         ->args(
             [
@@ -53,6 +54,8 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
                 ['cache' => $container->getParameter('kernel.cache_dir')],
             ]
         );
+    $services->set('twig.price_extension', PriceExtension::class)
+        ->tag('twig.extension');
 
     $container->addCompilerPass(new RegisterListenersPass());
     $container->register(ViewListener::class)

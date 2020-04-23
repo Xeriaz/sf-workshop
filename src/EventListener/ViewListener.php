@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\EventListener;
 
-use App\Twig\PriceExtension;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Twig\Environment;
@@ -56,10 +55,6 @@ class ViewListener
         $templatePath = "{$classname}/{$action}.html.twig";
 
         $response = new Response();
-
-        // TODO: make this automatic, based on tags: if Price Extension has a tag "twig.extension"
-        // this should happen automatically
-        $this->twigEnv->addExtension(new PriceExtension());
 
         $response->setContent(
             $this->getRenderedTwig($templatePath, $value)
