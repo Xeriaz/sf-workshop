@@ -8,56 +8,72 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Twig\Environment;
 use Twig\Error\LoaderError;
-use Twig\Loader\FilesystemLoader;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class ViewListener
 {
-    public function onKernelView(ViewEvent $event): void
+    /** @var Environment */
+    protected $twigEnv;
+
+    /** @var string */
+    protected $twigDir;
+
+    /** @var string */
+    private $cacheDir;
+
+    /**
+     * @param Environment $twigEnv
+     * @param string $cacheDir
+     * @param string $twigDir
+     */
+    public function __construct(Environment $twigEnv, string $cacheDir, string $twigDir)
     {
-        $value = $event->getControllerResult();
-        $classname = $this->getClassname($value['controller']);
-        $templatePath = "{$classname}/{$classname}.html.twig";
-
-        $response = new Response();
-        $loader = new FilesystemLoader($this->getProjectDir() . '/templates/');
-
-        $twig = new Environment(
-            $loader,
-            [
-//            'cache' => $this->getProjectDir() . '/var/twig/compilation_cache',
-            ]
-        );
-
-        try {
-            $response->setContent($twig->render($templatePath, $value));
-        } catch (LoaderError $exception) {
-            try {
-                $response->setContent($twig->render($this->getFallbackTemplate($classname), $value));
-            } catch (LoaderError $exception) {
-                $response->setContent($twig->render($this->getErrorTemplate(), $value));
-            }
-        }
-
-        $event->setResponse($response);
+        $this->twigEnv = $twigEnv;
+        $this->cacheDir = $cacheDir;
+        $this->twigDir = $twigDir;
     }
 
     /**
-     * @return string
+     * @param ViewEvent $event
+     * @throws LoaderError
+     * @throws  RuntimeError
+     * @throws SyntaxError
      */
-    private function getProjectDir(): string
+    public function onKernelView(ViewEvent $event): void
     {
-        return \dirname(\dirname(__DIR__));
+        $value = $event->getControllerResult();
+
+        if (is_array($value) === false) {
+            return;
+        }
+
+        $controller = $event->getRequest()->get('_controller');
+        [$className, $action] = $controller;
+
+        $classname = $this->getClassName($className);
+        $templatePath = "{$classname}/{$action}.html.twig";
+
+        $response = new Response();
+
+        $response->setContent(
+            $this->getRenderedTwig($templatePath, $value)
+        );
+
+        $event->setResponse($response);
     }
 
     /**
      * @param string $controller
      * @return string
      */
-    private function getClassname(string $controller): string
+    private function getClassName(string $controller): string
     {
+        $pathArray = \explode('\\', $controller);
+
         return \strtolower(
             substr(
-                end(\explode('\\', $controller)),
+                (string)end($pathArray),
                 0,
                 -10
             )
@@ -69,15 +85,25 @@ class ViewListener
      */
     private function getErrorTemplate(): string
     {
-        return "error/error500.html.twig";
+        return 'error/error500.html.twig';
     }
 
     /**
-     * @param string $classname
+     * @param string $templatePath
+     * @param array<string, float|int> $value
      * @return string
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    private function getFallbackTemplate(string $classname): string
+    private function getRenderedTwig(string $templatePath, array $value): string
     {
-        return "{$classname}/index.html.twig";
+        try {
+            $renderedTwig = $this->twigEnv->render($templatePath, $value);
+        } catch (LoaderError $exception) {
+            $renderedTwig = $this->twigEnv->render($this->getErrorTemplate(), $value);
+        }
+
+        return $renderedTwig;
     }
 }

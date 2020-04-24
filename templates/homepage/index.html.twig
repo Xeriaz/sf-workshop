@@ -3,4 +3,7 @@
 {% block body %}
     <h1>Index</h1>
     <h2>{{ message }}</h2>
+
+    <strong>You owe me: {{ price|price }} </strong><br>
+    <strong>You owe me: {{ price|eurPrice }}</strong>
 {% endblock %}
