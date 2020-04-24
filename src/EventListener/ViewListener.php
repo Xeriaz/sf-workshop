@@ -85,12 +85,12 @@ class ViewListener
      */
     private function getErrorTemplate(): string
     {
-        return "error/error500.html.twig";
+        return 'error/error500.html.twig';
     }
 
     /**
      * @param string $templatePath
-     * @param array $value
+     * @param array<string, float|int> $value
      * @return string
      * @throws LoaderError
      * @throws RuntimeError

@@ -23,7 +23,10 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
         ->autowire()
         ->autoconfigure();
 
-    $container->setParameter('twig.template_dir', dirname(__DIR__) . '/templates/');
+    $container->setParameter(
+        'twig.template_dir',
+        $container->getParameter('kernel.project_dir') . '/templates/'
+    );
 
     $services->load('App\\', '../src/*')
         ->exclude('../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}');

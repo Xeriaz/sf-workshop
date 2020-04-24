@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\DependencyInjection\Compiler;
@@ -12,7 +13,7 @@ class TwigExtensionPass implements CompilerPassInterface
     /**
      * @inheritDoc
      */
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         if (!$container->has('twig.environment')) {
             return;
