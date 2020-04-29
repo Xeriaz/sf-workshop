@@ -2,9 +2,11 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use App\Command\GreeterCommand;
 use App\EventListener\ViewListener;
 use App\Service\GreeterService;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
@@ -65,10 +67,21 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
                 ['cache' => $container->getParameter('kernel.cache_dir')],
             ]
         );
-    $services->set('greeter.command')
+    $services->set('greeter.command', GreeterCommand::class)
         ->args([
             ref(GreeterService::class)
         ]);
+
+//    $services->set('console.command_loader', ContainerCommandLoader::class)
+//        ->args(
+//            [
+//                ContainerBuilder::class, // ref(ContainerBuilder::class) ???
+//                [
+//                    'app:greet' => ref('greeter.command')
+//                ],
+//            ]
+//        )
+//        ->public();
 
     $container->addCompilerPass(new RegisterListenersPass());
     $container->register(ViewListener::class)

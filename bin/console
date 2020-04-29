@@ -3,12 +3,22 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use App\Command\GreeterCommand;
-use App\Service\GreeterService;
+use App\Kernel;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
 
 $application = new Application();
 
-$application->add(new GreeterCommand(new GreeterService()));
+$kernel = new Kernel('dev', true);
+$kernel->boot();
+
+$commandLoader = new ContainerCommandLoader(
+    $kernel->getContainer(),
+    [
+        'app:greet' => get_class($kernel->getContainer()->get('greeter.command')), // hack
+    ]
+);
+
+$application->setCommandLoader($commandLoader);
 
 $application->run();
