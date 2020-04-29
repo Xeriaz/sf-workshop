@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\EventListener\ViewListener;
+use App\Service\GreeterService;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
@@ -28,9 +30,11 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
         $container->getParameter('kernel.project_dir') . '/templates/'
     );
 
-    $services
-        ->instanceof(ExtensionInterface::class)
+    $services->instanceof(ExtensionInterface::class)
         ->tag('twig.extension');
+
+    $services->instanceof(Command::class)
+        ->tag('console.command');
 
     $services->load('App\\', '../src/*')
         ->exclude('../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}');
@@ -61,6 +65,10 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
                 ['cache' => $container->getParameter('kernel.cache_dir')],
             ]
         );
+    $services->set('greeter.command')
+        ->args([
+            ref(GreeterService::class)
+        ]);
 
     $container->addCompilerPass(new RegisterListenersPass());
     $container->register(ViewListener::class)
