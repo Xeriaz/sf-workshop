@@ -8,17 +8,29 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
 
 $application = new Application();
+$commandMap = [];
 
 $kernel = new Kernel('dev', true);
 $kernel->boot();
 
+// hack
+[$name, $service] = getCommandMap('greeter.command');
+$commandMap[$name] = $service;
+
 $commandLoader = new ContainerCommandLoader(
     $kernel->getContainer(),
-    [
-        'app:greet' => get_class($kernel->getContainer()->get('greeter.command')), // hack
-    ]
+    $commandMap
 );
 
 $application->setCommandLoader($commandLoader);
 
 $application->run();
+
+function getCommandMap(string $serviceId): array
+{
+    global $kernel;
+
+    $service = $kernel->getContainer()->get($serviceId);
+
+    return [$service->getName(), get_class($service)];
+}
