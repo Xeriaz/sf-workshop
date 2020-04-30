@@ -12,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class GreeterCommand extends Command
 {
+	protected static $defaultName = 'app:greet';
+
     /**
      * @var GreeterService
      */
@@ -30,7 +32,6 @@ class GreeterCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('app:greet')
             ->setDescription('Greet user')
             ->addArgument('name', InputArgument::REQUIRED, 'Name to greet')
         ;
