@@ -6,7 +6,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use App\Kernel;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
-use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
 
 $application = new Application();
 $commandMap = [];

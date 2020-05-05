@@ -20,13 +20,12 @@ class GreeterCommand extends Command
     protected $greeter;
 
     /**
-     * @param string|null $name
      * @param GreeterService $greeter
      */
-    public function __construct(GreeterService $greeter, string $name = null)
+    public function __construct(GreeterService $greeter)
     {
+        parent::__construct(null);
         $this->greeter = $greeter;
-        parent::__construct($name);
     }
 
     protected function configure(): void
