@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\DependencyInjection\Compiler\CommandLoaderPass;
 use App\DependencyInjection\Compiler\TwigExtensionPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -104,6 +105,7 @@ class Kernel extends BaseKernel
     protected function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(new TwigExtensionPass());
+        $container->addCompilerPass(new CommandLoaderPass());
     }
 
     private function loadRoutes(EventDispatcher $dispatcher): void

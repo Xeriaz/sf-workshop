@@ -72,17 +72,6 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
             ref(GreeterService::class)
         ]);
 
-//    $services->set('console.command_loader', ContainerCommandLoader::class)
-//        ->args(
-//            [
-//                ContainerBuilder::class, // ref(ContainerBuilder::class) ???
-//                [
-//                    'app:greet' => ref('greeter.command')
-//                ],
-//            ]
-//        )
-//        ->public();
-
     $container->addCompilerPass(new RegisterListenersPass());
     $container->register(ViewListener::class)
         ->addArgument(
