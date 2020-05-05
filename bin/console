@@ -1,0 +1,22 @@
+#!/usr/bin/env php
+<?php
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use App\Kernel;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\CommandLoader\CommandLoaderInterface;
+
+$application = new Application();
+$commandMap = [];
+
+$kernel = new Kernel('dev', true);
+$kernel->boot();
+
+$commandLoader = $kernel->getContainer()->get('console.command_loader');
+if (!$commandLoader instanceof CommandLoaderInterface) {
+    throw new RuntimeException('Command Loader must be an instanceof CommandLoaderInterface!');
+}
+
+$application->setCommandLoader($commandLoader);
+$application->run();

@@ -2,8 +2,11 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use App\Command\GreeterCommand;
 use App\EventListener\ViewListener;
-use App\Twig\PriceExtension;
+use App\Service\GreeterService;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
@@ -14,6 +17,7 @@ use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpKernel\HttpKernel;
 use Twig\Environment;
+use Twig\Extension\ExtensionInterface;
 use Twig\Loader\FilesystemLoader;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 
@@ -28,11 +32,14 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
         $container->getParameter('kernel.project_dir') . '/templates/'
     );
 
+    $services->instanceof(ExtensionInterface::class)
+        ->tag('twig.extension');
+
+    $services->instanceof(Command::class)
+        ->tag('console.command');
+
     $services->load('App\\', '../src/*')
         ->exclude('../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}');
-
-    $services->load('App\\Twig\\', '../src/Twig')
-        ->tag('twig.extension');
 
     $services->set('event_dispatcher', EventDispatcher::class);
     $services->set('controller_resolver', ContainerControllerResolver::class);
@@ -60,6 +67,10 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
                 ['cache' => $container->getParameter('kernel.cache_dir')],
             ]
         );
+    $services->set('greeter.command', GreeterCommand::class)
+        ->args([
+            ref(GreeterService::class)
+        ]);
 
     $container->addCompilerPass(new RegisterListenersPass());
     $container->register(ViewListener::class)
