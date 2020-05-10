@@ -16,7 +16,10 @@ class GreeterExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-//        \dd($config);
+        if ($config['enable'] === false) {
+            return;
+        };
+
         $loader = new PhpFileLoader(
             $container,
             new FileLocator(__DIR__ . '/../Resources/config')

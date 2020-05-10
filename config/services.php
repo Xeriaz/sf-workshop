@@ -8,6 +8,7 @@ use App\Service\GreeterService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -20,7 +21,7 @@ use Twig\Extension\ExtensionInterface;
 use Twig\Loader\FilesystemLoader;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 
-return function (ContainerConfigurator $configurator, ContainerBuilder $container) {
+return function (ContainerConfigurator $configurator, ContainerBuilder $container, PhpFileLoader $loader) {
     $services = $configurator->services()
         ->defaults()
         ->autowire()
@@ -83,4 +84,6 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
             $container->getParameter('twig.template_dir')
         )
         ->addTag('kernel.event_listener', ['event' => 'kernel.view']);
+
+    $loader->import('./packages/*');
 };
