@@ -6,7 +6,6 @@ use App\Command\GreeterCommand;
 use App\EventListener\ViewListener;
 use App\Service\GreeterService;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\CommandLoader\ContainerCommandLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
@@ -39,7 +38,7 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
         ->tag('console.command');
 
     $services->load('App\\', '../src/*')
-        ->exclude('../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}');
+        ->exclude('../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,Xeriaz}');
 
     $services->set('event_dispatcher', EventDispatcher::class);
     $services->set('controller_resolver', ContainerControllerResolver::class);
