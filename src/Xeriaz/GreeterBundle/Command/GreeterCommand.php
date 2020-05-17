@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Xeriaz\GreeterBundle\Command;
 
-use App\Xeriaz\GreeterBundle\Event\GreetEvent;
+use App\Xeriaz\GreeterBundle\Event\PostGreetEvent;
+use App\Xeriaz\GreeterBundle\Event\PreGreetEvent;
 use App\Xeriaz\GreeterBundle\Service\GreeterService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -28,6 +29,7 @@ class GreeterCommand extends Command
 
     /**
      * @param GreeterService $greeter
+     * @param EventDispatcher $dispatcher
      */
     public function __construct(GreeterService $greeter, EventDispatcher $dispatcher)
     {
@@ -46,15 +48,20 @@ class GreeterCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $event = new GreetEvent($input->getArgument('name'));
+        $event = new PreGreetEvent($input->getArgument('name'));
         $this->dispatcher->dispatch(
-            $event, GreetEvent::NAME
+            $event, PreGreetEvent::NAME
         );
 
         $output->writeln(
-            $this->greeter->greet(
+            $message = $this->greeter->greet(
                 $input->getArgument('name')
             )
+        );
+
+        $event = new PostGreetEvent($message);
+        $this->dispatcher->dispatch(
+            $event, PostGreetEvent::NAME
         );
 
         return 0;

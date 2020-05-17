@@ -5,7 +5,7 @@ namespace App\Xeriaz\GreeterBundle\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
-class GreetEvent extends Event
+class PreGreetEvent extends Event
 {
     public const NAME = 'greeter.pre_greet';
 
