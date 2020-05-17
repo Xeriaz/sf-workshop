@@ -1,6 +1,7 @@
 <?php
 
 use App\Xeriaz\GreeterBundle\Command\GreeterCommand;
+use App\Xeriaz\GreeterBundle\EventListener\BadWordListener;
 use App\Xeriaz\GreeterBundle\Service\GreeterService;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -14,8 +15,19 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
     $services->set('xeriaz.greeter.command', GreeterCommand::class)
         ->args(
             [
-                ref('xeriaz.greeter.service')
+                ref('xeriaz.greeter.service'),
+                ref('event_dispatcher'),
             ]
         )
         ->tag('console.command');
+
+
+    $container->register('greeter.bad_word.listener',BadWordListener::class)
+        ->addTag(
+            'kernel.event_listener',
+            [
+                'event' => 'greeter.pre_greet',
+                'method' => 'onBadWordAction',
+            ]
+        );
 };
