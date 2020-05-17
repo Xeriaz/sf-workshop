@@ -1,5 +1,7 @@
 <?php
 
+use App\Xeriaz\GreeterBundle\GreeterBundle;
+
 return [
-//    \Symfony\Component\HttpKernel\Bundle\BundleInterface::class => ['all' => true],
+    GreeterBundle::class => ['all' => true],
 ];
