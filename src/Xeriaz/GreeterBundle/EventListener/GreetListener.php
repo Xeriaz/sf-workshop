@@ -35,16 +35,11 @@ class GreetListener
     }
 
     /**
-     * @param Event $event
+     * @param PreGreetEvent $event
+     * @throws \Exception
      */
-    public function onBadWordAction(Event $event): void
+    public function onBadWordAction(PreGreetEvent $event): void
     {
-        if (!($event instanceof PreGreetEvent)
-            && \method_exists($event, 'getName') === false
-        ) {
-            return;
-        }
-
         $name = \strtolower($event->getName());
 
         if (\in_array($name, $this->badWords)) {
@@ -53,14 +48,10 @@ class GreetListener
     }
 
     /**
-     * @param Event $event
+     * @param PostGreetEvent $event
      */
-    public function onGreetAction(Event $event)
+    public function onGreetAction(PostGreetEvent $event)
     {
-        if ($event instanceof PostGreetEvent
-            && \method_exists($event, 'getMessage')
-        ) {
-            $this->logger->debug($event->getMessage());
-        }
+        $this->logger->debug($event->getMessage());
     }
 }
