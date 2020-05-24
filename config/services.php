@@ -25,6 +25,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 return function (ContainerConfigurator $configurator, ContainerBuilder $container, PhpFileLoader $loader) {
     $services = $configurator->services()
         ->defaults()
+        ->bind('$greeter', ref('xeriaz.greeter.service'))
         ->autowire()
         ->autoconfigure();
 
