@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Xeriaz\GreeterBundle\Service;
 
+use App\Xeriaz\GreeterBundle\Event\GreetEvent;
 use App\Xeriaz\GreeterBundle\Event\PostGreetEvent;
 use App\Xeriaz\GreeterBundle\Event\PreGreetEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -39,6 +40,9 @@ class GreeterService
             \rand(0, count($this->greetingWords) - 1)
         ];
 
+        $name = $this->dispatchGreetEvent($name)
+            ->getName();
+
         $message = "{$greetWord} {$name}";
 
         $this->dispatchPostGreetEvent($message);
@@ -56,6 +60,18 @@ class GreeterService
         $this->dispatcher->dispatch(
             $event, PreGreetEvent::NAME
         );
+    }
+
+    /**
+     * @param string $name
+     * @return GreetEvent
+     */
+    private function dispatchGreetEvent(string $name): GreetEvent
+    {
+        $event = new GreetEvent($name);
+        $this->dispatcher->dispatch($event, GreetEvent::NAME);
+
+        return $event;
     }
 
     /**

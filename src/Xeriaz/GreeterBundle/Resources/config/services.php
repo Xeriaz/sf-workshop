@@ -46,6 +46,17 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
             ]
         );
 
+    $container->register('greeter.greet.listener',GreetListener::class)
+        ->addArgument(new Reference('xeriaz.bad_word_filter'))
+        ->addArgument(new Reference('logger'))
+        ->addTag(
+            'kernel.event_listener',
+            [
+                'event' => 'greeter.greet',
+                'method' => 'onGreetAction',
+            ]
+        );
+
     $container->register('greeter.post_greet.listener',GreetListener::class)
         ->addArgument(new Reference('xeriaz.bad_word_filter'))
         ->addArgument(new Reference('logger'))
@@ -53,7 +64,7 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
             'kernel.event_listener',
             [
                 'event' => 'greeter.post_greet',
-                'method' => 'onGreetAction',
+                'method' => 'onPostGreetAction',
             ]
         );
 };

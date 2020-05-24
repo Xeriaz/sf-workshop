@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Xeriaz\GreeterBundle\EventListener;
 
+use App\Xeriaz\GreeterBundle\Event\GreetEvent;
 use App\Xeriaz\GreeterBundle\Event\PostGreetEvent;
 use App\Xeriaz\GreeterBundle\Event\PreGreetEvent;
 use App\Xeriaz\GreeterBundle\Service\BadWordFilterService;
@@ -40,9 +41,17 @@ class GreetListener
     }
 
     /**
+     * @param GreetEvent $event
+     */
+    public function onGreetAction(GreetEvent $event)
+    {
+        return $event->getName();
+    }
+
+    /**
      * @param PostGreetEvent $event
      */
-    public function onGreetAction(PostGreetEvent $event)
+    public function onPostGreetAction(PostGreetEvent $event)
     {
         $this->logger->debug($event->getMessage());
     }
