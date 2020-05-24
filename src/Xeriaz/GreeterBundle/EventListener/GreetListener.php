@@ -6,8 +6,8 @@ namespace App\Xeriaz\GreeterBundle\EventListener;
 
 use App\Xeriaz\GreeterBundle\Event\PostGreetEvent;
 use App\Xeriaz\GreeterBundle\Event\PreGreetEvent;
+use App\Xeriaz\GreeterBundle\Service\BadWordFilterService;
 use Psr\Log\LoggerInterface;
-use Symfony\Contracts\EventDispatcher\Event;
 
 class GreetListener
 {
@@ -15,22 +15,18 @@ class GreetListener
      * @var LoggerInterface
      */
     protected $logger;
-
     /**
-     * @var array
+     * @var BadWordFilterService
      */
-    private $badWords = [
-        'poo',
-        'poop',
-        'geez',
-        'darn',
-    ];
+    protected $badWordFilter;
 
     /**
+     * @param BadWordFilterService $badWordFilter
      * @param LoggerInterface $logger
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct(BadWordFilterService $badWordFilter, LoggerInterface $logger)
     {
+        $this->badWordFilter = $badWordFilter;
         $this->logger = $logger;
     }
 
@@ -40,11 +36,7 @@ class GreetListener
      */
     public function onBadWordAction(PreGreetEvent $event): void
     {
-        $name = \strtolower($event->getName());
-
-        if (\in_array($name, $this->badWords)) {
-            throw new \Exception('Offensive words are prohibited');
-        };
+        $this->badWordFilter->filter($event->getName());
     }
 
     /**

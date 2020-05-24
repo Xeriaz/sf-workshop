@@ -2,28 +2,41 @@
 
 use App\Xeriaz\GreeterBundle\Command\GreeterCommand;
 use App\Xeriaz\GreeterBundle\EventListener\GreetListener;
+use App\Xeriaz\GreeterBundle\Service\BadWordFilterService;
 use App\Xeriaz\GreeterBundle\Service\GreeterService;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\HttpKernel\Log\Logger;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 
 return function (ContainerConfigurator $configurator, ContainerBuilder $container) {
     $services = $configurator->services();
 
-    $services->set('xeriaz.greeter.service', GreeterService::class);
+    $services->set('xeriaz.greeter.service', GreeterService::class)
+        ->args(
+            [
+                ref('event_dispatcher'),
+                $container->getParameter('xeriaz.greeter.greet_words')
+            ]
+        );
+
+    $services->set('xeriaz.bad_word_filter', BadWordFilterService::class)
+        ->args(
+            [
+                $container->getParameter('xeriaz.greeter.bad_words')
+            ]
+        );
 
     $services->set('xeriaz.greeter.command', GreeterCommand::class)
         ->args(
             [
                 ref('xeriaz.greeter.service'),
-                ref('event_dispatcher'),
             ]
         )
         ->tag('console.command');
 
     $container->register('greeter.bad_word.listener',GreetListener::class)
+        ->addArgument(new Reference('xeriaz.bad_word_filter'))
         ->addArgument(new Reference('logger'))
         ->addTag(
             'kernel.event_listener',
@@ -34,6 +47,7 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
         );
 
     $container->register('greeter.post_greet.listener',GreetListener::class)
+        ->addArgument(new Reference('xeriaz.bad_word_filter'))
         ->addArgument(new Reference('logger'))
         ->addTag(
             'kernel.event_listener',

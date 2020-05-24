@@ -23,19 +23,12 @@ class GreeterCommand extends Command
     protected $greeter;
 
     /**
-     * @var EventDispatcher
-     */
-    protected $dispatcher;
-
-    /**
      * @param GreeterService $greeter
-     * @param EventDispatcher $dispatcher
      */
-    public function __construct(GreeterService $greeter, EventDispatcher $dispatcher)
+    public function __construct(GreeterService $greeter)
     {
         parent::__construct(null);
         $this->greeter = $greeter;
-        $this->dispatcher = $dispatcher;
     }
 
     protected function configure(): void
@@ -48,20 +41,10 @@ class GreeterCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $event = new PreGreetEvent($input->getArgument('name'));
-        $this->dispatcher->dispatch(
-            $event, PreGreetEvent::NAME
-        );
-
         $output->writeln(
             $message = $this->greeter->greet(
                 $input->getArgument('name')
             )
-        );
-
-        $event = new PostGreetEvent($message);
-        $this->dispatcher->dispatch(
-            $event, PostGreetEvent::NAME
         );
 
         return 0;
