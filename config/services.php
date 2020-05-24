@@ -5,6 +5,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use App\Command\GreeterCommand;
 use App\EventListener\ViewListener;
 use App\Service\GreeterService;
+use Symfony\Bridge\Twig\Extension\FormExtension;
+use Symfony\Bridge\Twig\Form\TwigRendererEngine;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -15,12 +17,14 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormRegistry;
+use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Form\ResolvedFormTypeFactory;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\Log\Logger;
+use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Twig\Environment;
 use Twig\Extension\ExtensionInterface;
 use Twig\Loader\FilesystemLoader;
@@ -40,6 +44,9 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
     );
 
     $services->instanceof(ExtensionInterface::class)
+        ->tag('twig.extension');
+
+    $services->set('twig.form_extension', FormExtension::class)
         ->tag('twig.extension');
 
     $services->instanceof(Command::class)
@@ -81,6 +88,23 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
     $services->set('logger', Logger::class);
 
     // FORM
+//    $services->set('csrf_manager', CsrfTokenManager::class);
+//    $services->set('form_engine', TwigRendererEngine::class)
+//        ->args(
+//            [
+//                'form_div_layout.html.twig',
+//                ref('twig.environment')
+//            ]
+//        );
+
+//    $services->set('form_renderer', FormRenderer::class)
+//        ->args(
+//            [
+//                ref('form_engine'),
+//                ref('csrf_manager')
+//            ]
+//        );
+
     $services->set('http_foundation.extension', HttpFoundationExtension::class);
     $services->set('resolved_form_type.factory', ResolvedFormTypeFactory::class);
     $services->set('form_registry', FormRegistry::class)
@@ -92,6 +116,7 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
                 ref('resolved_form_type.factory'),
             ]
         );
+
     $services->set('form_factory', FormFactory::class)
         ->args(
             [
