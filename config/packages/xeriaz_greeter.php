@@ -8,6 +8,16 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
         'greeter',
         [
             'enable' => true,
+            'badWords' => [
+                'poop',
+                'poo',
+                'geez',
+                'darn',
+            ],
+            'greetWords' => [
+                'Konichiwa',
+                'Sveiki',
+            ],
         ]
     );
 };

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Service\GreeterService;
+use App\Xeriaz\GreeterBundle\Service\GreeterService;
 use Symfony\Component\HttpFoundation\Response;
 
 class HomepageController

@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ContainerControllerResolver;
 use Symfony\Component\HttpKernel\HttpKernel;
+use Symfony\Component\HttpKernel\Log\Logger;
 use Twig\Environment;
 use Twig\Extension\ExtensionInterface;
 use Twig\Loader\FilesystemLoader;
@@ -24,6 +25,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\ref;
 return function (ContainerConfigurator $configurator, ContainerBuilder $container, PhpFileLoader $loader) {
     $services = $configurator->services()
         ->defaults()
+        ->bind('$greeter', ref('xeriaz.greeter.service'))
         ->autowire()
         ->autoconfigure();
 
@@ -71,6 +73,7 @@ return function (ContainerConfigurator $configurator, ContainerBuilder $containe
         ->args([
             ref(GreeterService::class)
         ]);
+    $services->set('logger', Logger::class);
 
     $container->addCompilerPass(new RegisterListenersPass());
     $container->register(ViewListener::class)

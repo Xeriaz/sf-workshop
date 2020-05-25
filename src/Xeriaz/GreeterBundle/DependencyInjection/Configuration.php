@@ -18,6 +18,14 @@ class Configuration implements ConfigurationInterface
         $treeBuilder->getRootNode()
             ->children()
                 ->booleanNode('enable')->defaultFalse()->end()
+                ->booleanNode('useBadWordsHelper')->defaultTrue()->end()
+                ->booleanNode('useGreetWordsHelper')->defaultTrue()->end()
+                ->arrayNode('badWords')
+                    ->scalarPrototype()->end()
+                ->end()
+                ->arrayNode('greetWords')
+                    ->scalarPrototype()->end()
+                ->end()
             ->end();
 
         return $treeBuilder;
